@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<!--
+  DOCTYPE tells the browser: "Hey, this is an HTML5 file"
+  Always put this at the very top of every HTML file
+-->
+
+<html lang="en">
+<!--
+  <html> is the root/container of your entire webpage
+  lang="en" tells the browser the page is in English
+-->
+
+<head>
+  <!--
+    <head> is like the "settings" section of your page
+    The user CANNOT see what's inside <head>
+    It contains: page title, links to CSS, fonts, libraries
+  -->
+
+  <meta charset="UTF-8" />
+  <!-- UTF-8 makes sure special characters display correctly -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- This makes the page look good on mobile phones too -->
+
+  <title>OrbitWatch — Space Debris Dashboard</title>
+  <!-- This is what shows up on the browser tab -->
+
+  <!-- Google Fonts: We're loading a cool futuristic font called "Orbitron" -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <!-- CesiumJS: This is the FREE library that gives us the 3D globe -->
+  <!-- We load it from CDN (like a library on the internet, no install needed) -->
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.js"></script>
+
+  <!-- Our own CSS file (we will create this next) -->
+  <link rel="stylesheet" href="style.css" />
+
+</head>
+
+<body>
+  <!--
+    <body> is where ALL the visible content goes
+    Everything the user sees is inside <body>
+  -->
+
+  <!-- ===== NAVBAR (top bar) ===== -->
+  <nav class="navbar">
+    <!--
+      <nav> is a special HTML tag for navigation bars
+      class="navbar" links it to CSS styling we'll write
+    -->
+    <div class="nav-logo">
+      <span class="logo-icon">🛰️</span>
+      <span class="logo-text">OrbitWatch</span>
+    </div>
+    <div class="nav-subtitle">Space Debris Monitoring Dashboard</div>
+    <div class="nav-status">
+      <span class="status-dot"></span>
+      <span>LIVE DATA</span>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN CONTENT WRAPPER ===== -->
+  <main class="container">
+    <!--
+      <main> holds the main content of the page
+      class="container" will center and pad everything nicely
+    -->
+
+    <!-- ===== INTRO SECTION ===== -->
+    <section class="intro-section">
+      <h1 class="intro-title">Earth's Orbital Crisis</h1>
+      <p class="intro-text">
+        Over <strong>27,000 tracked debris objects</strong> are currently orbiting Earth at speeds
+        up to 28,000 km/h. Each one is a potential threat to active satellites, the ISS,
+        and future space missions. This dashboard uses real-time data to monitor the growing danger.
+      </p>
+    </section>
+
+    <!-- ===== STATS CARDS (3 boxes showing key numbers) ===== -->
+    <section class="stats-section">
+      <!--
+        These 3 cards will show:
+        - Total debris count
+        - High risk objects
+        - Altitude zones affected
+        The numbers will be filled in by JavaScript later
+      -->
+
+      <div class="stat-card">
+        <div class="stat-icon">🗑️</div>
+        <div class="stat-number" id="total-count">Loading...</div>
+        <!-- id="total-count" lets JavaScript find this element and update it -->
+        <div class="stat-label">Total Debris Tracked</div>
+      </div>
+
+      <div class="stat-card danger">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-number" id="high-risk-count">Loading...</div>
+        <div class="stat-label">High Risk Objects</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-number" id="altitude-count">Loading...</div>
+        <div class="stat-label">Objects in LEO (Low Earth Orbit)</div>
+      </div>
+
+    </section>
+
+    <!-- ===== 3D GLOBE SECTION ===== -->
+    <section class="globe-section">
+      <h2 class="section-title">Live Orbital Debris Map</h2>
+      <p class="section-subtitle">Each dot represents a tracked debris object. Red = High Risk | Yellow = Medium | Green = Low</p>
+
+      <div id="cesiumContainer">
+        <!--
+          This empty div is where the 3D globe will appear
+          CesiumJS (the library) will inject the globe into this div
+          id="cesiumContainer" is how CesiumJS finds where to put the globe
+        -->
+      </div>
+    </section>
+
+    <!-- ===== SEARCH AND FILTER ===== -->
+    <section class="filter-section">
+      <h2 class="section-title">Debris Database</h2>
+
+      <div class="filter-bar">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="🔍 Search by object name..."
+        />
+        <!--
+          type="text" = text input box
+          id="searchInput" = JavaScript will use this to read what user typed
+          placeholder = grey hint text shown before user types
+        -->
+
+        <select id="riskFilter" class="filter-select">
+          <!--
+            <select> creates a dropdown menu
+            The <option> tags are the choices in the dropdown
+          -->
+          <option value="all">All Risk Levels</option>
+          <option value="high">High Risk</option>
+          <option value="medium">Medium Risk</option>
+          <option value="low">Low Risk</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- ===== DEBRIS TABLE ===== -->
+    <section class="table-section">
+      <table class="debris-table">
+        <!--
+          <table> creates a table (like Excel)
+          <thead> = table header row (column names)
+          <tbody> = table body (actual data rows, filled by JavaScript)
+        -->
+        <thead>
+          <tr>
+            <!-- <tr> = table row, <th> = table header cell -->
+            <th>Object Name</th>
+            <th>NORAD ID</th>
+            <th>Altitude (km)</th>
+            <th>Inclination (°)</th>
+            <th>Risk Level</th>
+          </tr>
+        </thead>
+        <tbody id="debrisTableBody">
+          <!--
+            This tbody is EMPTY right now
+            JavaScript will fill it with rows of debris data
+            id="debrisTableBody" lets JavaScript find and fill this
+          -->
+        </tbody>
+      </table>
+
+      <!-- Loading message shown while data is being fetched -->
+      <div id="loadingMessage" class="loading-message">
+        ⏳ Fetching live debris data from CelesTrak...
+      </div>
+
+      <!-- Error message shown if fetch fails -->
+      <div id="errorMessage" class="error-message" style="display:none;">
+        ❌ Could not load live data. Showing sample data instead.
+      </div>
+    </section>
+
+    <!-- ===== WHY IT MATTERS SECTION ===== -->
+    <section class="info-section">
+      <h2 class="section-title">Why This Matters</h2>
+      <div class="info-grid">
+
+        <div class="info-card">
+          <div class="info-icon">💥</div>
+          <h3>Kessler Syndrome</h3>
+          <p>A chain reaction where debris collisions create more debris, potentially making low Earth orbit unusable for generations.</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">📡</div>
+          <h3>Satellite Threats</h3>
+          <p>Even a 1cm piece of debris traveling at 28,000 km/h can destroy a functioning satellite worth hundreds of millions of dollars.</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">🚀</div>
+          <h3>Future Missions at Risk</h3>
+          <p>Growing debris clouds threaten future Moon missions, Mars missions, and the daily communications we rely on.</p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>OrbitWatch | Data sourced from <a href="https://celestrak.org" target="_blank">CelesTrak</a> | Built for Space Hackathon 2026</p>
+  </footer>
+
+  <!-- ===== JAVASCRIPT FILES ===== -->
+  <!--
+    We load JS files at the BOTTOM of body (not in head)
+    Why? Because HTML loads top to bottom. If JS loads first,
+    it tries to find elements that don't exist yet and breaks.
+    Loading at bottom = HTML is ready before JS runs.
+  -->
+  <script src="data.js"></script>
+  <!-- data.js fetches debris data from CelesTrak -->
+
+  <script src="globe.js"></script>
+  <!-- globe.js sets up the 3D globe -->
+
+  <script src="app.js"></script>
+  <!-- app.js ties everything together -->
+
+</body>
+</html>
