@@ -613,3 +613,136 @@ body::before {
     height: 350px;  /* smaller globe on mobile */
   }
 }
+
+/* =============================================
+   16. EXTRA MOBILE FIXES
+   For screens smaller than 480px (small phones)
+============================================= */
+@media (max-width: 480px) {
+
+  .intro-title {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+
+  .intro-text {
+    font-size: 0.85rem;
+  }
+
+  .intro-section {
+    padding: 20px 15px;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .logo-text {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .logo-icon {
+    font-size: 1.4rem;
+  }
+
+  .nav-subtitle {
+    display: none;
+    /* hide the subtitle on very small screens
+       to keep navbar clean */
+  }
+
+  .section-title {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .search-input,
+  .filter-select {
+    width: 100%;
+  }
+
+  /* Table scrolls horizontally on mobile */
+  .table-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* -webkit = makes scrolling smooth on iPhone */
+  }
+
+  .debris-table {
+    min-width: 500px;
+    /* minimum width so columns don't squish */
+  }
+
+  .debris-table th,
+  .debris-table td {
+    padding: 10px 12px;
+    font-size: 0.75rem;
+  }
+
+  /* Detail panel takes full width on mobile */
+  #debrisDetailPanel {
+    width: 90% !important;
+    right: 5% !important;
+    left: 5% !important;
+    top: 60px !important;
+    font-size: 12px !important;
+  }
+
+  /* Tooltip position fix for mobile */
+  #debrisTooltip {
+    font-size: 11px !important;
+    min-width: 180px !important;
+    padding: 10px 12px !important;
+  }
+
+  #cesiumContainer {
+    height: 280px;
+  }
+
+  .info-card {
+    padding: 20px 15px;
+  }
+
+  .container {
+    padding: 20px 12px;
+  }
+
+  .footer {
+    font-size: 0.7rem;
+    padding: 20px 10px;
+  }
+}
+
+/* =============================================
+   17. TABLET FIXES
+   For screens between 480px and 768px (tablets)
+============================================= */
+@media (min-width: 481px) and (max-width: 768px) {
+
+  .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns on tablet instead of 1 */
+  }
+
+  .stat-card:last-child {
+    grid-column: span 2;
+    /* last card spans both columns — centered */
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .info-card:last-child {
+    grid-column: span 2;
+  }
+
+  #cesiumContainer {
+    height: 400px;
+  }
+
+  #debrisDetailPanel {
+    width: 320px !important;
+  }
+}
