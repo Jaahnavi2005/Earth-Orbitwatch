@@ -1,21 +1,60 @@
 // =============================================
 // ORBITWATCH - data.js
-// This file is responsible for:
-// 1. Fetching real debris data from local server
-// 2. If server not running, uses sample data
-// 3. Processing/cleaning that data
-// 4. Making it available to the rest of the app
+// Fetches live data from server or uses sample
+// Also updates the navbar status indicator
 // =============================================
+
+
+// =============================================
+// UPDATE STATUS INDICATOR
+// Changes the navbar dot and text based on
+// whether we have live or sample data
+// =============================================
+function setStatusLive() {
+    const dot    = document.getElementById('statusDot');
+    const text   = document.getElementById('statusText');
+    const status = document.getElementById('dataStatus');
+
+    if (dot)    dot.style.background   = '#00ff88';
+    if (dot)    dot.style.boxShadow    = '0 0 6px #00ff88';
+    if (text)   text.textContent       = 'LIVE DATA';
+    if (status) status.style.color     = '#00ff88';
+    // Green = live data from server
+}
+
+function setStatusSample() {
+    const dot    = document.getElementById('statusDot');
+    const text   = document.getElementById('statusText');
+    const status = document.getElementById('dataStatus');
+
+    if (dot)    dot.style.background   = '#ffd700';
+    if (dot)    dot.style.boxShadow    = '0 0 6px #ffd700';
+    if (text)   text.textContent       = 'SAMPLE DATA';
+    if (status) status.style.color     = '#ffd700';
+    // Yellow = sample data fallback
+}
+
+function setStatusConnecting() {
+    const dot    = document.getElementById('statusDot');
+    const text   = document.getElementById('statusText');
+    const status = document.getElementById('dataStatus');
+
+    if (dot)    dot.style.background   = '#7a9cc7';
+    if (dot)    dot.style.boxShadow    = 'none';
+    if (text)   text.textContent       = 'CONNECTING...';
+    if (status) status.style.color     = '#7a9cc7';
+    // Grey = still loading
+}
 
 
 // =============================================
 // MAIN FETCH FUNCTION
-// First tries local server (localhost:3000)
-// If that fails, automatically uses sample data
 // =============================================
 async function fetchDebrisData() {
     try {
-        // First try the local server
+        // Show connecting status while fetching
+        setStatusConnecting();
+
         const response = await fetch("http://localhost:3000/debris");
 
         if (!response.ok) throw new Error("Server not running");
@@ -38,29 +77,34 @@ async function fetchDebrisData() {
             };
         });
 
-        // Save globally for app.js
-        window.debrisData = processedData;
+        // ✅ Show green LIVE DATA in navbar
+        setStatusLive();
 
-        // Dispatch event so app.js knows data is ready
+        // Hide error message
+        const errorMsg = document.getElementById('errorMessage');
+        if (errorMsg) errorMsg.style.display = 'none';
+
+        window.debrisData = processedData;
         window.dispatchEvent(new CustomEvent("debrisDataLoaded", {
             detail: processedData
         }));
 
     } catch (error) {
-        // Server not running — use sample data instead
         console.warn("⚠️ Server not available, using sample data:", error.message);
-        // Show a subtle notice to the user
-const errorMsg = document.getElementById('errorMessage');
-if (errorMsg) {
-    errorMsg.style.display = 'block';
-    errorMsg.style.color = '#ffd700';
-    errorMsg.textContent = '📱 Showing sample data — run server for live data';
-}
+
+        // 🟡 Show yellow SAMPLE DATA in navbar
+        setStatusSample();
+
+        // Show friendly yellow message below table
+        const errorMsg = document.getElementById('errorMessage');
+        if (errorMsg) {
+            errorMsg.style.display  = 'block';
+            errorMsg.style.color    = '#ffd700';
+            errorMsg.textContent    = '📱 Showing sample data — run server for live data';
+        }
 
         const sampleData = getSampleData();
-
         window.debrisData = sampleData;
-
         window.dispatchEvent(new CustomEvent("debrisDataLoaded", {
             detail: sampleData
         }));
@@ -70,36 +114,28 @@ if (errorMsg) {
 
 // =============================================
 // CALCULATE ALTITUDE FROM ORBITAL DATA
-// Uses mean motion to calculate altitude in km
 // =============================================
 function calculateAltitude(obj) {
-    const mu = 398600.4418; // Earth's gravitational parameter
+    const mu = 398600.4418;
     const meanMotionRad = obj.MEAN_MOTION * 2 * Math.PI / 86400;
     const semiMajorAxis = Math.pow(mu / (meanMotionRad * meanMotionRad), 1/3);
-    return semiMajorAxis - 6371; // subtract Earth radius to get altitude
+    return semiMajorAxis - 6371;
 }
 
 
 // =============================================
 // DETERMINE RISK LEVEL
-// Uses both altitude AND eccentricity
-// More accurate than altitude alone
 // =============================================
 function determineRisk(obj, altitude) {
-    if (altitude < 500 || obj.ECCENTRICITY > 0.01) {
-        return "high";
-    }
-    if (altitude < 2000) {
-        return "medium";
-    }
+    if (altitude < 500 || obj.ECCENTRICITY > 0.01) return "high";
+    if (altitude < 2000) return "medium";
     return "low";
 }
 
 
 // =============================================
-// SAMPLE DATA
-// 20 real debris objects used as fallback
-// when server is not running
+// SAMPLE DATA — 20 real debris objects
+// Used when server is not running
 // =============================================
 function getSampleData() {
     return [
@@ -128,7 +164,6 @@ function getSampleData() {
 
 
 // =============================================
-// START — runs automatically when page loads
+// START
 // =============================================
-
 fetchDebrisData();
