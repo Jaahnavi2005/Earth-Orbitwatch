@@ -49,6 +49,13 @@ async function fetchDebrisData() {
     } catch (error) {
         // Server not running — use sample data instead
         console.warn("⚠️ Server not available, using sample data:", error.message);
+        // Show a subtle notice to the user
+const errorMsg = document.getElementById('errorMessage');
+if (errorMsg) {
+    errorMsg.style.display = 'block';
+    errorMsg.style.color = '#ffd700';
+    errorMsg.textContent = '📱 Showing sample data — run server for live data';
+}
 
         const sampleData = getSampleData();
 
@@ -123,4 +130,5 @@ function getSampleData() {
 // =============================================
 // START — runs automatically when page loads
 // =============================================
+
 fetchDebrisData();
